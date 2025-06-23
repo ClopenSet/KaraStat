@@ -1,0 +1,6 @@
+[submodule "externals/SQLite.swift"]
+	path = externals/SQLite.swift
+	url = https://github.com/stephencelis/SQLite.swift.git
+[submodule "externals/Karabiner-Lite"]
+	path = externals/Karabiner-Lite
+	url = https://github.com/ClopenSet/Karabiner-Lite.git
