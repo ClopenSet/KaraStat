@@ -38,7 +38,7 @@ $(LIBKRBN_BUILD_DIR)/libkrbn.a:
 	$(MAKE) -C $(LIBKRBN_STANDALONE_DIR)
 
 # Build main target
-$(TARGET): $(SOURCES) src/Bridging-Header.h
+$(TARGET): $(SOURCES) src/Bridging-Header.h $(LIBKRBN_BUILD_DIR)/libkrbn.a
 	@echo "Compiling and linking executable: $(TARGET)"
 	$(SWIFTC) $(SWIFT_FLAGS) $(SOURCES) $(LDFLAGS) -o $(TARGET)
 	@echo "Build complete! Run with: ./$(TARGET)"
@@ -48,8 +48,9 @@ clean:
 	@echo "Cleaning main project..."
 	rm -f $(TARGET)
 	rm -rf "$(HOME_DIR)/Library/Application Support/karastat"
-	rm -rf $(SQLITE_SWIFT_REPO_DIR)
 	@echo "Cleaning Karabiner-Lite..."
 	$(MAKE) -C $(LIBKRBN_STANDALONE_DIR) clean
+
+libkrbn: $(LIBKRBN_BUILD_DIR)/libkrbn.a
 
 .PHONY: all clean
