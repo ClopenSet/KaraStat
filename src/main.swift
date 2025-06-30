@@ -29,18 +29,35 @@ private func hidValueCallback(
     var buffer = [CChar](repeating: 0, count: 256)
     libkrbn_get_momentary_switch_event_json_string(&buffer, buffer.count, usagePage, usage)
     let jsonString = String(cString: buffer)
+    
+    guard let data = jsonString.data(using: .utf8), !data.isEmpty else {
+        return
+    }
 
-    // Parse the JSON to extract the 'key_code' (e.g., "return", "spacebar", "a")
-    if let data = jsonString.data(using: .utf8) {
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let keyCode = json["key_code"] as? String {
-                // Increment the count for this key in the database
-                DatabaseManager.shared.incrementKeyCount(keyName: keyCode)
+    do {
+        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+            let possibleKeyNames = [
+                "key_code",
+                "apple_vendor_top_case_key_code"
+            ]
+            
+            var foundKeyCode: String? = nil
+            
+            for key in possibleKeyNames {
+                if let keyCode = json[key] as? String {
+                    foundKeyCode = keyCode
+                    break 
+                }
             }
-        } catch {
-            print("ERROR: KaraStat: Failed to parse JSON for key event: \(error)")
+
+            if let finalKeyCode = foundKeyCode {
+                DatabaseManager.shared.incrementKeyCount(keyName: finalKeyCode)
+            } else {
+                print("DEBUG: KaraStat: Unhandled JSON key structure: \(jsonString)")
+            }
         }
+    } catch {
+        print("ERROR: KaraStat: Failed to parse JSON '\(jsonString)': \(error)")
     }
 }
 
